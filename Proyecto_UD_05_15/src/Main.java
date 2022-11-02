@@ -59,7 +59,7 @@ public class Main {
 		}
 		try {
 			Statement sentencia = conexion.createStatement();
-			ResultSet resul = sentencia.executeQuery("SELECT * FROM usuario WHERE usuario = '" + usuario + "'  AND clave = '" + contrasena + "'");
+			ResultSet resul = sentencia.executeQuery("SELECT * FROM usuarios WHERE usuario = '" + usuario + "'  AND clave = '" + contrasena + "'");
 			while (resul.next()) {
 				acierto = true;
 			}
@@ -86,7 +86,7 @@ public class Main {
 						
 						switch(opcion) {
 						case 1:
-							empleadosGestion();
+							empleadosGestion(conexion);
 							break;
 						case 2:
 							clientesGestion();
@@ -124,7 +124,7 @@ public class Main {
 				
 				switch(opcion) {
 				case 1:
-					empleadosGestion();
+					//empleadosGestion();
 					break;
 				case 2:
 					clientesGestion();
@@ -138,7 +138,7 @@ public class Main {
 				default:
 					System.out.println("Valor incorrecto, inténtelo de nuevo");
 				break;
-			}
+				}
 			} catch (NumberFormatException e) {
 				System.out.println("ERROR insete un valor numerico.");
 			} catch (IOException e) {
@@ -156,7 +156,7 @@ public class Main {
 				
 				switch(opcion) {
 				case 1:
-					empleadosGestion();
+					//empleadosGestion();
 					break;
 				case 2:
 					clientesGestion();
@@ -170,7 +170,7 @@ public class Main {
 				default:
 					System.out.println("Valor incorrecto, inténtelo de nuevo");
 				break;
-			}
+				}
 			} catch (NumberFormatException e) {
 				System.out.println("ERROR insete un valor numerico.");
 			} catch (IOException e) {
@@ -178,7 +178,7 @@ public class Main {
 		} while (opcion != 4);
 	}
 	
-	public static void empleadosGestion() {
+	public static void empleadosGestion(Connection conexion) {
 		int opcion = -1;
 		do {
 			try {
@@ -188,13 +188,13 @@ public class Main {
 				
 				switch(opcion) {
 				case 1:
-					mostrarEmpleados();
+					mostrarEmpleados(conexion);
 					break;
 				case 2:
-					anadirEmpleado();
+					anadirEmpleado(conexion);
 					break;
 				case 3:
-					eliminarEmpleado();
+					eliminarEmpleado(conexion);
 					break;
 				case 4:
 					editarEmpleado();
@@ -205,24 +205,70 @@ public class Main {
 				default:
 					System.out.println("Valor incporrecto, inténtelo de nuevo");
 				break;
-			}
+				}
 			} catch (NumberFormatException e) {
 				System.out.println("ERROR insete un valor numerico.");
 			} catch (IOException e) {
-				System.out.println("ERROR");			}
+				System.out.println("ERROR");			
+			}
 		} while (opcion != 5);
 	}
 	
-	public static void mostrarEmpleados() {
+	public static void mostrarEmpleados(Connection conexion) {
+		try {
+			Statement sentencia = conexion.createStatement();
+			ResultSet resul = sentencia.executeQuery("SELECT * FROM empleados");
+			while (resul.next()){
+				System.out.println ("ID: " + resul.getInt(1) + " "+ resul.getString(2)+ " " + resul.getString(3) + " " + resul.getString(4) + " " + resul.getString(5) + " " + resul.getString(6) + " " + resul.getString(7) + " " + resul.getString(8) + " " + resul.getInt(9));
+			}
+			resul.close();
+			sentencia.close();
+		} catch (SQLException e) {
+			System.out.println("ERROR al recuperar los datos.");
+		}
+		
+	}
+	
+	public static void anadirEmpleado(Connection conexion) {
 		System.out.println("Cargando dato de empleados.");
 	}
 	
-	public static void anadirEmpleado() {
+	public static void eliminarEmpleado(Connection conexion) {
+		boolean eli = false;
 		System.out.println("Cargando dato de empleados.");
-	}
-	
-	public static void eliminarEmpleado() {
-		System.out.println("Cargando dato de empleados.");
+		mostrarEmpleados(conexion);
+		System.out.println("Cual es el id del empleado que quieres eliminar.");
+		try {
+			int id = Integer.parseInt(br.readLine());
+			
+			Statement sentencia = conexion.createStatement();
+			ResultSet resul = sentencia.executeQuery("SELECT * FROM empleados");
+			while (resul.next()){
+				if (id == resul.getInt(1)) {
+					eli = true;
+				}
+			}
+			
+			resul.close();
+			sentencia.close();
+			
+			if (eli) {
+				sentencia = conexion.createStatement();
+				sentencia.executeQuery("DELETE FROM empleados WHERE id = " + id);
+				System.out.println("Eliminado correctamente");
+			}
+			
+			resul.close();
+			sentencia.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			//System.out.println("ERROR al recuperar los datos.");
+		} catch (NumberFormatException e) {
+			System.out.println("ERROR introduce un numero.");
+		} catch (IOException e) {
+			System.out.println("");
+		}
+		
 	}
 	
 	public static void editarEmpleado() {
