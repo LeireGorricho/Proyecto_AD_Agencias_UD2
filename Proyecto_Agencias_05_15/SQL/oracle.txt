@@ -1,0 +1,197 @@
+CREATE TABLE AGENCIAS (
+	id INTEGER NOT NULL,
+	nombre VARCHAR(20) NOT NULL,
+	fecha_apertura VARCHAR(10) NOT NULL,
+	direccion VARCHAR(25) NOT NULL,
+	email VARCHAR(40) NOT NULL,
+	telefono INTEGER NOT NULL,
+	PRIMARY KEY(id)
+);
+
+CREATE SEQUENCE agencia_seq;
+
+CREATE OR REPLACE TRIGGER triggeragencias
+BEFORE INSERT ON AGENCIAS
+FOR EACH ROW
+
+BEGIN
+	SELECT agencia_seq.NEXTVAL
+	INTO :new.id
+	FROM dual;
+END;
+
+////////////////////////////////
+
+CREATE TABLE USUARIOS (
+	id INTEGER NOT NULL,
+	usuario VARCHAR(25) NOT NULL,
+	clave VARCHAR(50) NOT NULL,
+	PRIMARY KEY(id)
+);
+
+CREATE SEQUENCE usuarios_seq;
+
+CREATE OR REPLACE TRIGGER triggerusuarios
+BEFORE INSERT ON USUARIOS
+FOR EACH ROW
+
+BEGIN
+	SELECT usuarios_seq.NEXTVAL
+	INTO :new.id
+	FROM dual;
+END;
+
+////////////////////////////////
+
+CREATE TABLE CLIENTES (
+	id INTEGER NOT NULL,
+	estado VARCHAR(4) NOT NULL,
+	dni VARCHAR(9) NOT NULL,
+	nombre VARCHAR(25) NOT NULL,
+	apellidos VARCHAR(25) NOT NULL,
+	edad INTEGER NOT NULL,
+	profesion VARCHAR(25) NOT NULL,
+	idagencia INTEGER NOT NULL,
+	PRIMARY KEY(id),
+	CONSTRAINT agenciacliente FOREIGN KEY (idagencia) REFERENCES AGENCIAS(id)
+);
+
+CREATE SEQUENCE clientes_seq;
+
+CREATE OR REPLACE TRIGGER triggerclientes
+BEFORE INSERT ON CLIENTES
+FOR EACH ROW
+
+BEGIN
+	SELECT clientes_seq.NEXTVAL
+	INTO :new.id
+	FROM dual;
+END;
+
+/////////////////////////////////////////////////
+
+CREATE TABLE EMPLEADOS (
+	id INTEGER NOT NULL,
+	estado VARCHAR(4) NOT NULL,
+	dni VARCHAR(9) NOT NULL,
+	nombre VARCHAR(25) NOT NULL,
+	apellido VARCHAR(25) NOT NULL,
+	fecha_nac VARCHAR(10) NOT NULL,
+	fecha_contrato VARCHAR(10) NOT NULL,
+	nacionalidad VARCHAR(25) NOT NULL,
+	cargo VARCHAR(20) NOT NULL,
+	idagencia INTEGER NOT NULL,
+	PRIMARY KEY(id),
+	CONSTRAINT agenciaempleado FOREIGN KEY (idagencia) REFERENCES AGENCIAS(id)
+);
+
+CREATE SEQUENCE empleados_seq;
+
+CREATE OR REPLACE TRIGGER triggerempleado
+BEFORE INSERT ON EMPLEADOS
+FOR EACH ROW
+
+BEGIN
+	SELECT empleados_seq.NEXTVAL
+	INTO :new.id
+	FROM dual;
+END;
+
+/////////////////////////////////////////////////
+
+CREATE TABLE VISITAS_GUIADAS (
+	id INTEGER NOT NULL,
+	estado VARCHAR(4) NOT NULL,
+	nombre VARCHAR(25) NOT NULL,
+	max_clientes INTEGER NOT NULL,
+	punto_partida VARCHAR(50) NOT NULL,
+	tematica VARCHAR(50) NOT NULL,
+	coste FLOAT NOT NULL,
+	idagencia INTEGER NOT NULL,
+	idempleado INTEGER NOT NULL,
+	PRIMARY KEY(id),
+	CONSTRAINT empleavisita FOREIGN KEY (idempleado) REFERENCES EMPLEADOS(id),
+	CONSTRAINT agenciavisita FOREIGN KEY (idagencia) REFERENCES AGENCIAS(id)
+);
+
+CREATE SEQUENCE visitas_seq;
+
+CREATE OR REPLACE TRIGGER triggervisita
+BEFORE INSERT ON VISITAS_GUIADAS
+FOR EACH ROW
+
+BEGIN
+	SELECT visitas_seq.NEXTVAL
+	INTO :new.id
+	FROM dual;
+END;
+
+////////////////////////////////////////////////
+
+CREATE TABLE CLIENTE_VISITA (
+	id INTEGER NOT NULL,
+	fecha VARCHAR(10) NOT NULL,
+	hora VARCHAR(5) NOT NULL,
+	idcliente INTEGER NOT NULL,
+	idvisita INTEGER NOT NULL,
+	PRIMARY KEY(id),
+	CONSTRAINT cliente FOREIGN KEY (idcliente) REFERENCES CLIENTES(id),
+	CONSTRAINT visita FOREIGN KEY (idvisita) REFERENCES VISITAS_GUIADAS(id)
+);
+
+CREATE SEQUENCE clientevisita_seq;
+
+CREATE OR REPLACE TRIGGER triggerclientevisita
+BEFORE INSERT ON CLIENTE_VISITA
+FOR EACH ROW
+
+BEGIN
+	SELECT clientevisita_seq.NEXTVAL
+	INTO :new.id
+	FROM dual;
+END;
+
+/////////////////////////////////////
+
+CREATE TABLE LOG (
+	id INTEGER NOT NULL,
+	idusuario INTEGER NOT NULL,
+	fechahora VARCHAR(30) NOT NULL, 
+	PRIMARY KEY(id),
+	CONSTRAINT usuario FOREIGN KEY (idusuario) REFERENCES USUARIOS(id)
+);
+
+CREATE SEQUENCE log_seq;
+
+CREATE OR REPLACE TRIGGER triggerlog
+BEFORE INSERT ON LOG
+FOR EACH ROW
+
+BEGIN
+	SELECT log_seq.NEXTVAL
+	INTO :new.id
+	FROM dual;
+END;
+
+//////////////////////////////////////
+
+INSERT INTO AGENCIAS(nombre, fecha_apertura, direccion, email, telefono) VALUES('Agencia', '1/11/2022', 'Calle calle 15', 'agencia@gmail.com', 147852369);
+INSERT INTO CLIENTES(estado, dni, nombre, apellidos, edad, profesion, idagencia) VALUES('Alta', '12345679L', 'Pepe', 'Luego', 45, 'Profesor', 1);
+INSERT INTO CLIENTES(estado, dni, nombre, apellidos, edad, profesion, idagencia) VALUES('Alta', '85479632R', 'Miguel', 'Garcia', 30, 'Construcor', 1);
+INSERT INTO CLIENTES(estado, dni, nombre, apellidos, edad, profesion, idagencia) VALUES('Alta', '45628791G', 'Marta', 'Castaño', 23, 'Contable', 1);
+INSERT INTO CLIENTES(estado, dni, nombre, apellidos, edad, profesion, idagencia) VALUES('Alta', '47961358T', 'Alex', 'Peñales', 39, 'Contable', 1);
+INSERT INTO CLIENTES(estado, dni, nombre, apellidos, edad, profesion, idagencia) VALUES('Alta', '46287951G', 'Jon', 'Matinez', 55, 'Informatico', 1);
+INSERT INTO EMPLEADOS(estado, dni, nombre, apellido, fecha_nac, fecha_contrato, nacionalidad, cargo, idagencia) VALUES('Alta', '88512346L', 'Leire', 'Gorricho', '12/9/2002', '1/11/2022', 'Española', 'Jefa', 1);
+INSERT INTO EMPLEADOS(estado, dni, nombre, apellido, fecha_nac, fecha_contrato, nacionalidad, cargo, idagencia) VALUES('Alta', '69423548T', 'Gaizka', 'Seco', '9/3/2002', '1/11/2022', 'Española', 'Sub-Jefe', 1);
+INSERT INTO EMPLEADOS(estado, dni, nombre, apellido, fecha_nac, fecha_contrato, nacionalidad, cargo, idagencia) VALUES('Alta', '58964226G', 'Alex', 'Regalado', '12/10/2001', '1/11/2022', 'Española', 'Trabajador', 1);
+INSERT INTO EMPLEADOS(estado, dni, nombre, apellido, fecha_nac, fecha_contrato, nacionalidad, cargo, idagencia) VALUES('Alta', '78569412L', 'Egoitz', 'Torre', '1/6/2000', '1/11/2022', 'Española', 'Trabajador', 1);
+INSERT INTO EMPLEADOS(estado, dni, nombre, apellido, fecha_nac, fecha_contrato, nacionalidad, cargo, idagencia) VALUES('Alta', '56321478P', 'Juan', 'Torre', '22/1/2000', '1/11/2022', 'Española', 'Trabajador', 1);
+INSERT INTO VISITAS_GUIADAS(estado, nombre, max_clientes, punto_partida, tematica, coste, idagencia, idempleado) VALUES('Alta', 'Visita divertidisima', 20, 'Plaza españa', 'Divertida', 9.99, 1, 1);
+INSERT INTO VISITAS_GUIADAS(estado, nombre, max_clientes, punto_partida, tematica, coste, idagencia, idempleado) VALUES('Alta', 'Visita de miedo', 20, 'Plaza españa', 'Miedo', 9.99, 1, 2);	
+INSERT INTO VISITAS_GUIADAS(estado, nombre, max_clientes, punto_partida, tematica, coste, idagencia, idempleado) VALUES('Alta', 'Visita historica', 20, 'Plaza españa', 'Historia', 9.99, 1, 3);	
+INSERT INTO VISITAS_GUIADAS(estado, nombre, max_clientes, punto_partida, tematica, coste, idagencia, idempleado) VALUES('Alta', 'Visita ciudadana', 20, 'Plaza españa', 'Historia', 9.99, 1, 3);
+INSERT INTO CLIENTE_VISITA(fecha, hora, idcliente, idvisita) VALUES('07/11/2022', '13:00', 1, 1);
+INSERT INTO CLIENTE_VISITA(fecha, hora, idcliente, idvisita) VALUES('07/11/2022', '15:00', 1, 2);
+INSERT INTO CLIENTE_VISITA(fecha, hora, idcliente, idvisita) VALUES('08/11/2022', '13:00', 2, 3);
+INSERT INTO CLIENTE_VISITA(fecha, hora, idcliente, idvisita) VALUES('08/11/2022', '15:00', 2, 4);
+INSERT INTO USUARIOS(usuario, clave) VALUES('admin', '12345');
